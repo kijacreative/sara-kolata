@@ -26,6 +26,6 @@ The headshots, lineage textile, partner venue and speaker reel are still placeho
 - `_ds/` – Sara Kolata design system (tokens, fonts, component bundle), unchanged from the design project
 - `fonts/` – Rengard (headings)
 - `illustrations/dark/` – phase illustrations
-- `src/sk-sky.js` – hero sky shader (static still + live animation; respects reduced motion)
+- `src/sk-sky.js` – hero sky shader: static still, plus a live version where the clouds drift and the sun sets behind the ridge over 45s, then holds at dusk (respects reduced motion)
 - `src/sk2-*.jsx` – page and section components
 - `src/app.jsx` – router

@@ -1,7 +1,7 @@
 (function(){
 var fs=[
 'precision highp float;',
-'uniform vec2 r;uniform float t;uniform vec2 sp;uniform float k;uniform float sr;',
+'uniform vec2 r;uniform float t;uniform vec2 sp;uniform float k;uniform float sr;uniform float e;',
 'float h(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453);}',
 'float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}',
 'float fb(vec2 p){float v=0.,a=.5;for(int i=0;i<6;i++){v+=a*n(p);p*=2.02;a*=.5;}return v;}',
@@ -14,11 +14,15 @@ var fs=[
 ' vec3 ink=vec3(.067,.078,.165);vec3 night=vec3(.122,.141,.251);vec3 red=vec3(.557,.165,.208);vec3 gold=vec3(.78,.604,.243);',
 ' vec3 col=mix(ink,night,smoothstep(.2,.9,f));',
 ' col=mix(col,red*.85,smoothstep(.5,1.05,f*length(w))*.6);',
-' float d=length((uv-sp)*vec2(1.,1.08));',
+' vec2 sc=sp-vec2(0.,e*.7*sr);',
+' vec3 warm=mix(gold,mix(gold,red,.55),e);',
+' col*=1.-.22*e*smoothstep(-.1,.5,uv.y);',
+' float d=length((uv-sc)*vec2(1.,1.08));',
 ' float sun=smoothstep(sr,sr-.012,d);',
-' float glow=exp(-d*3.4/max(k,.6))*.8;',
-' col+=gold*glow*(.5+.5*f);',
-' col=mix(col,gold*1.12,sun*.95);',
+' float glow=exp(-d*3.4/max(k,.6))*(.8-.3*e);',
+' col+=warm*glow*(.5+.5*f);',
+' col+=mix(gold,red,.6)*e*.16*exp(-abs(uv.x-sc.x)*1.6/k)*exp(-max(uv.y+.12,0.)*7.);',
+' col=mix(col,warm*1.12,sun*.95);',
 ' float dx=(uv.x-sp.x)/k;',
 ' float ridge=-.24+.26*exp(-abs(dx+.32)*4.)+.2*exp(-abs(dx-.34)*4.5)+.025*sin(dx*13.)+.035*fb(vec2(dx*6.,1.));',
 ' float ridge2=-.36+.1*exp(-abs(dx+.7)*3.)+.13*exp(-abs(dx-.78)*2.6)+.04*fb(vec2(dx*9.,4.));',
@@ -38,11 +42,11 @@ function setup(c,sx,k,sr,keep){
   var pr=gl.createProgram();gl.attachShader(pr,a);gl.attachShader(pr,b);gl.linkProgram(pr);gl.useProgram(pr);
   var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   var lc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(lc);gl.vertexAttribPointer(lc,2,gl.FLOAT,false,0,0);
-  var uR=gl.getUniformLocation(pr,'r'),uT=gl.getUniformLocation(pr,'t');
+  var uR=gl.getUniformLocation(pr,'r'),uT=gl.getUniformLocation(pr,'t'),uE=gl.getUniformLocation(pr,'e');
   gl.uniform2f(gl.getUniformLocation(pr,'sp'),sx,-.09);
   gl.uniform1f(gl.getUniformLocation(pr,'k'),k);
   gl.uniform1f(gl.getUniformLocation(pr,'sr'),sr);
-  return {gl:gl,draw:function(t){gl.viewport(0,0,c.width,c.height);gl.uniform2f(uR,c.width,c.height);gl.uniform1f(uT,t);gl.drawArrays(gl.TRIANGLES,0,3);}};
+  return {gl:gl,draw:function(t,e){gl.viewport(0,0,c.width,c.height);gl.uniform2f(uR,c.width,c.height);gl.uniform1f(uT,t);gl.uniform1f(uE,e||0);gl.drawArrays(gl.TRIANGLES,0,3);}};
 }
 
 /* Static still, used as the poster and for reduced motion. */
@@ -59,14 +63,16 @@ function render(w,h,sx,k,sr){
 var P={d:[.44,1,.085],m:[.07,.42,.06]};
 window.SK_SKY={d:render(2160,1350,P.d[0],P.d[1],P.d[2]),m:render(780,1688,P.m[0],P.m[1],P.m[2])};
 
-/* Live sky: animates the same field slowly on a canvas. Returns a stop() function. */
+/* Live sky: animates the same field slowly on a canvas, and the sun sets once over SET seconds
+   (starting from the still's position), then holds at dusk. Returns a stop() function. */
+var SET=45;
 window.SK_SKY_LIVE=function(c,mode){
   var p=P[mode]||P.d,s;
   try{s=setup(c,p[0],p[1],p[2],false);}catch(e){s=null;}
   if(!s)return function(){};
   var raf=0,t0=performance.now(),visible=true;
   function size(){var dpr=Math.min(window.devicePixelRatio||1,1.5),w=Math.round(c.clientWidth*dpr),h=Math.round(c.clientHeight*dpr);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}}
-  function loop(now){if(visible){size();s.draw(12.0+(now-t0)/1000);}raf=requestAnimationFrame(loop);}
+  function loop(now){if(visible){size();var el=(now-t0)/1000,x=Math.min(el/SET,1);s.draw(12.0+el,.5-.5*Math.cos(Math.PI*x));}raf=requestAnimationFrame(loop);}
   var io=('IntersectionObserver' in window)?new IntersectionObserver(function(e){visible=e[0].isIntersecting;}):null;
   if(io)io.observe(c);
   raf=requestAnimationFrame(loop);
