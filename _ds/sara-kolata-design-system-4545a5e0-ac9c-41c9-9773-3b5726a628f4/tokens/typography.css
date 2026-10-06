@@ -1,0 +1,37 @@
+:root{
+--font-display:'Eugerie','Instrument Serif',Georgia,serif;
+--font-accent:'Calaya','Instrument Serif',cursive;
+--font-body:'Jost',system-ui,sans-serif;
+--font-standin:'Instrument Serif',Georgia,serif;
+
+--weight-light:300;
+--weight-regular:400;
+--weight-medium:500;
+
+/* Display scale (Eugerie) */
+--type-wordmark:128px;
+--type-hero:96px;
+--type-h1:64px;
+--type-h2:44px;
+--type-h3:34px;
+--type-h4:30px;
+--lh-display:1.02; /* @kind other */
+--lh-tight:1; /* @kind other */
+--tracking-display:-0.01em;
+
+/* Accent (Calaya) */
+--type-tagline:46px;
+--type-pullquote:40px;
+
+/* Body (Jost) */
+--type-lead:20px;
+--type-body:18px;
+--type-ui:16px;
+--type-small:15px;
+--type-caption:14px;
+--type-micro:13px;
+--lh-body:1.7; /* @kind other */
+--lh-ui:1.5; /* @kind other */
+--measure:65ch;
+--tracking-eyebrow:0.14em;
+}

@@ -1,0 +1,40 @@
+:root{
+/* Spacing — values observed on the brand canvas */
+--space-1:6px;
+--space-2:10px;
+--space-3:14px;
+--space-4:18px;
+--space-5:24px;
+--space-6:28px;
+--space-7:32px;
+--space-8:44px;
+--space-9:56px;
+--space-10:64px;
+--space-section:120px;
+--page-gutter:64px;
+--page-max:1440px;
+--content-max:1200px;
+
+/* Radii — nearly square, like cut stone */
+--radius-button:2px;
+--radius-tile:4px;
+--radius-round:50%;
+
+/* Borders */
+--border-hair:1px;
+--border-mark:2.4px;
+
+/* Controls */
+--control-height:48px;
+--control-pad-x:28px;
+
+/* Elevation — the brand is flat; one soft shadow for floating UI only */
+--shadow-none:none;
+--shadow-float:0 12px 32px -12px rgba(26,23,22,.28);
+
+/* Motion — slow and calm */
+--ease-settle:cubic-bezier(.22,.61,.36,1); /* @kind other */
+--dur-fast:160ms; /* @kind other */
+--dur-base:280ms; /* @kind other */
+--dur-slow:640ms; /* @kind other */
+}

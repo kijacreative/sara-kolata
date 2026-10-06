@@ -1,0 +1,50 @@
+:root{
+/* Base palette — taken from the Sacred Valley */
+--quarry:#E8E4DA;          /* ground, pale Inca granite — 60% */
+--quarry-deep:#D9D3C6;     /* quarry shade: tinted panels, proportion bar */
+--quarry-light:#F4F1EA;    /* lifted tile on quarry */
+--quarry-line:#C9C3B6;     /* hairlines + borders on quarry */
+--ceremony-indigo:#1F2440; /* signature dark — 25% */
+--indigo-deep:#14182C;     /* stage / deepest night */
+--indigo-soft:#2E3452;     /* first light over the valley */
+--apu-sage:#6F7C66;        /* support — 8% */
+--cochineal:#8E2A35;       /* Andean dye red — 5% */
+--cochineal-tint:#EADBD5;  /* text on cochineal, secondary */
+--inti-gold:#C79A3E;       /* the sun — 2%, on indigo only */
+--obsidian:#1A1716;        /* all text on light grounds */
+--stone-700:#3A3532;       /* secondary body text */
+--stone-600:#4A4541;       /* captions, meta */
+--stone-500:#4A443F;       /* fitted-stone dark field */
+--clay:#A35B3A;            /* woven lineage / natural dye field (imagery only) */
+
+/* Semantic — surfaces */
+--surface-ground:var(--quarry);
+--surface-raised:var(--quarry-light);
+--surface-tint:var(--quarry-deep);
+--surface-dark:var(--ceremony-indigo);
+--surface-stage:var(--indigo-deep);
+--surface-quiet:var(--apu-sage);
+--surface-accent:var(--cochineal);
+
+/* Semantic — text */
+--text-body:var(--obsidian);
+--text-secondary:var(--stone-700);
+--text-muted:var(--stone-600);
+--text-on-dark:var(--quarry);
+--text-on-dark-muted:var(--quarry-deep);
+--text-on-accent:var(--quarry);
+--text-accent:var(--cochineal);
+--text-accent-on-dark:var(--inti-gold);
+
+/* Semantic — lines + action */
+--border:var(--quarry-line);
+--border-strong:var(--obsidian);
+--border-on-dark:rgba(232,228,218,.24);
+--action-primary:var(--cochineal);
+--action-primary-hover:#7A222C;
+--action-primary-press:#681C25;
+--action-on-dark:var(--inti-gold);
+--focus-ring:var(--cochineal);
+--link:var(--cochineal);
+--link-hover:var(--obsidian);
+}
