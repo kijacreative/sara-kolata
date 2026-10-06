@@ -4,7 +4,7 @@ function PressPage({m}){
   const gap=m?28:96;
   return <div style={{background:'var(--bg)'}}>
     <Header m={m} active="Speaking"/>
-    <section data-screen-label="Press hero" style={{background:'var(--raised)',color:'var(--fg)',display:'grid',gridTemplateColumns:m?'1fr':'minmax(0,1fr) minmax(0,1.15fr)',minHeight:m?undefined:760}}>
+    <section data-no-rv data-screen-label="Press hero" style={{background:'var(--raised)',color:'var(--fg)',display:'grid',gridTemplateColumns:m?'1fr':'minmax(0,1fr) minmax(0,1.15fr)',minHeight:m?undefined:760}}>
       <div style={{padding:m?'72px 24px 48px':'120px 64px 96px',display:'flex',flexDirection:'column',justifyContent:'flex-end',gap:m?20:28}}>
         <H as="h1" s={m?72:104} style={{lineHeight:.98}}>Speaking and press</H>
         <P s={m?18:20} c="var(--fg)">Sara Kolata is a spiritual teacher, shamanic guide and author based in the Sacred Valley of Peru. She speaks on why lasting change happens at the root, beneath insight.</P>
@@ -14,7 +14,7 @@ function PressPage({m}){
     </section>
     <Sec m={m} label="Talk topics">
       <div style={{display:'flex',flexDirection:m?'column':'row',justifyContent:'space-between',alignItems:m?'flex-start':'end',gap:m?16:40}}><H s={m?48:72}>Signature talks</H><span style={{fontSize:15,fontWeight:300,color:'var(--fg2)'}}>Keynote, panel, podcast and workshop formats. In English or Spanish.</span></div>
-      <ol style={{listStyle:'none',margin:0,padding:0,borderBottom:'1px solid var(--hair)'}}>
+      <ol data-stagger style={{listStyle:'none',margin:0,padding:0,borderBottom:'1px solid var(--hair)'}}>
         {TALKS.map(([t,d],i)=><li key={t} style={{display:'grid',gridTemplateColumns:m?'40px minmax(0,1fr)':'80px minmax(0,1.1fr) minmax(0,1fr)',gap:m?'8px 16px':32,padding:'32px 0',borderTop:'1px solid var(--hair)',alignItems:'baseline'}}>
           <Num n={i+1}/><H as="h3" s={m?40:52}>{t}</H><P s={m?17:19} style={{gridColumn:m?'2':undefined}}>{d}</P>
         </li>)}
@@ -56,7 +56,6 @@ function PressPage({m}){
         <div style={{gridColumn:'1 / -1'}}><Button type="submit" fullWidth={m}>Send inquiry</Button></div>
       </form>
     </div></Sec>
-    <Footer m={m}/>
   </div>;
 }
 window.PressPage=PressPage;

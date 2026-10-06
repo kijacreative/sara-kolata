@@ -10,7 +10,8 @@
 <style>
 @font-face{font-family:"Rengard";src:url("fonts/Rengard-Regular.otf") format("opentype");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Rengard";src:url("fonts/Rengard-Italic.otf") format("opentype");font-weight:400;font-style:italic;font-display:swap}
-:root{--font-heading:"Rengard","Instrument Serif",Georgia,serif;--bg:#11142A;--raised:#1F2440;--fg:#E8E4DA;--fg2:rgba(232,228,218,.74);--hair:rgba(232,228,218,.16);--gold:#C79A3E;--border-on-dark:rgba(232,228,218,.16)}
+:root{--font-heading:"Rengard","Instrument Serif",Georgia,serif;--bg:#11142A;--raised:#1F2440;--fg:#E8E4DA;--fg2:rgba(232,228,218,.74);--hair:rgba(232,228,218,.16);--gold:#C79A3E;--border-on-dark:rgba(232,228,218,.4);--sage-band:#7B8672}
+/* --border-on-dark .4 gives form fields 3:1 against the page (WCAG 1.4.11); --sage-band is apu-sage lifted 10% toward quarry so obsidian body text clears 4.5:1 */
 *{box-sizing:border-box}
 html{background:var(--bg);scroll-behavior:smooth}
 body{margin:0;font-family:var(--font-body);color:var(--fg);background:var(--bg);overflow-x:hidden}
@@ -25,7 +26,57 @@ p .ph,blockquote .ph{font-size:.85em}
 summary::-webkit-details-marker{display:none}
 details[open] .faq-mark{transform:rotate(45deg)}
 .faq-mark{transition:transform var(--dur-base) var(--ease-settle)}
-@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+.sage-band :focus-visible{outline-color:var(--obsidian)}
+
+/* ── Motion ─────────────────────────────────────────────────────
+   Follows the OpenDesign animation-discipline rules on the brand's own easing:
+   hover ≤200ms, entering UI 240–280ms, page change 320ms, reveals under 500ms
+   (20–30% shorter on small screens). Reduced motion keeps short fades only. */
+:root{--rv-dur:480ms;--rv-y:12px}
+@media (max-width:899px){:root{--rv-dur:360ms;--rv-y:8px}}
+a{transition:color var(--dur-fast) var(--ease-settle)}
+
+/* scroll reveal: classes are added by src/sk2-motion.jsx, so content is never hidden without JS */
+.rv{opacity:0;transform:translateY(var(--rv-y));transition:opacity var(--rv-dur) var(--ease-settle),transform var(--rv-dur) var(--ease-settle);transition-delay:var(--rv-d,0ms)}
+.rv.in{opacity:1;transform:none}
+
+/* hero entrance, once per load */
+@keyframes rise{from{opacity:0;transform:translateY(var(--rv-y))}to{opacity:1;transform:none}}
+.rise{animation:rise var(--rv-dur) var(--ease-settle) both;animation-delay:var(--rv-d,0ms)}
+
+/* overlays entering: site menu and video player */
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes lift{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.menu-in{animation:drop 240ms var(--ease-settle) both}
+.scrim-in{animation:fade 240ms var(--ease-settle) both}
+.panel-in{animation:lift var(--dur-base) var(--ease-settle) both}
+
+/* hover and press feedback */
+.navl{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;padding-bottom:5px;transition:background-size 200ms var(--ease-settle)}
+.navl:hover,.navl[aria-current="page"]{background-size:100% 1px}
+.vcard .poster-img{transition:transform 200ms var(--ease-settle)}
+.vcard:hover .poster-img,.vcard:focus-visible .poster-img{transform:scale(1.03)}
+.vcard .play{transition:transform 200ms var(--ease-settle),background-color 160ms var(--ease-settle),border-color 160ms var(--ease-settle)}
+.vcard:hover .play,.vcard:focus-visible .play{transform:scale(1.06);background-color:rgba(17,20,42,.82);border-color:var(--gold)}
+.vcard:active .play{transform:scale(.98);transition-duration:80ms}
+.sky-toggle{transition:border-color var(--dur-fast) var(--ease-settle),background-color var(--dur-fast) var(--ease-settle)}
+.sky-toggle:hover{border-color:var(--fg);background-color:rgba(17,20,42,.6)}
+
+/* page change crossfade (View Transitions); skipped entirely for reduced motion in src/app.jsx */
+::view-transition-old(root),::view-transition-new(root){animation-duration:320ms;animation-timing-function:var(--ease-settle)}
+
+.skip{position:absolute;left:16px;top:-80px;z-index:50;background:var(--fg);color:var(--bg);padding:12px 18px;border-radius:2px;font-size:15px;font-weight:500;text-decoration:none;transition:top var(--dur-fast) var(--ease-settle)}
+.skip:focus{top:16px;color:var(--bg)}
+
+/* Reduced motion: strip movement on every axis, keep brief opacity fades so state changes still read */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:0s!important;animation:none!important}
+  .rv{transform:none;transition:opacity var(--dur-fast) linear!important}
+  .menu-in,.scrim-in,.panel-in{animation:fade var(--dur-fast) linear both!important}
+  .vcard:hover .poster-img,.vcard:hover .play,.vcard:focus-visible .poster-img,.vcard:focus-visible .play{transform:none}
+}
 </style>
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
@@ -35,6 +86,7 @@ details[open] .faq-mark{transform:rotate(45deg)}
 </head>
 <body>
 <div id="root"></div>
+<script type="text/babel" src="src/sk2-motion.jsx"></script>
 <script type="text/babel" src="src/sk2-shared.jsx"></script>
 <script type="text/babel" src="src/sk2-stories.jsx"></script>
 <script type="text/babel" src="src/sk2-home.jsx"></script>

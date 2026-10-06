@@ -23,8 +23,8 @@ function PlayerOverlay({i=0,m,onClose}){
     const b=closeRef.current&&closeRef.current.querySelector('button');if(b)b.focus();
     return()=>{document.removeEventListener('keydown',key);document.body.style.overflow='';if(prev&&prev.focus)prev.focus();};
   },[]);
-  return <div role="dialog" aria-modal="true" aria-label={title} onClick={e=>{if(e.target===e.currentTarget)onClose();}} style={{position:'fixed',inset:0,zIndex:30,background:'rgba(17,20,42,.9)',display:'flex',alignItems:'center',justifyContent:'center',padding:m?24:64,overflowY:'auto'}}>
-    <div style={{width:'100%',maxWidth:1040,display:'flex',flexDirection:'column',gap:m?16:24}}>
+  return <div role="dialog" aria-modal="true" aria-label={title} className="scrim-in" onClick={e=>{if(e.target===e.currentTarget)onClose();}} style={{position:'fixed',inset:0,zIndex:30,background:'rgba(17,20,42,.9)',display:'flex',alignItems:'center',justifyContent:'center',padding:m?24:64,overflowY:'auto'}}>
+    <div className="panel-in" style={{width:'100%',maxWidth:1040,display:'flex',flexDirection:'column',gap:m?16:24}}>
       <div ref={closeRef} style={{display:'flex',justifyContent:'flex-end'}}><Button variant="on-dark" size="sm" onClick={onClose}><span style={{display:'inline-flex',alignItems:'center',gap:10}}>Close<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.4"/></svg></span></Button></div>
       <div style={v?{width:'min(100%, 46vh)',margin:'0 auto'}:undefined}><Poster play={m?64:96} field="var(--indigo-deep)" src={VSRC(k)} pos="center" ratio={v?'9 / 16':'16 / 9'} label={'VIDEO: '+cap}/></div>
       <VCap cap={cap} title={title} ts={m?28:40}/>
@@ -40,10 +40,10 @@ function StoriesSection({m}){
       <H s={m?48:72}>In their own words.</H>
       <P s={m?18:20} style={{maxWidth:'38em'}}>Recorded straight after their Karmic Recapitulation sessions. Every one-to-one client, online or at the retreat centre in Peru, also receives the five-month You Are God program.</P>
     </div>
-    <div style={{display:'grid',gridTemplateColumns:'repeat('+cols+',minmax(0,1fr))',gap:m?'32px 16px':'44px 20px'}}>
+    <div data-stagger style={{display:'grid',gridTemplateColumns:'repeat('+cols+',minmax(0,1fr))',gap:m?'32px 16px':'44px 20px'}}>
       {STORIES.map(([k,c,t,v],i)=>v?<VideoCard key={k} cap={c} title={t} src={VSRC(k)} pos="center 25%" ratio="9 / 16" ts={m?18:22} play={m?48:56} label="VIDEO" onOpen={()=>setOpen(i)}/>:null)}
     </div>
-    <div style={{display:'grid',gridTemplateColumns:m?'1fr':'repeat(3,minmax(0,1fr))',gap:m?40:'48px 24px'}}>
+    <div data-stagger style={{display:'grid',gridTemplateColumns:m?'1fr':'repeat(3,minmax(0,1fr))',gap:m?40:'48px 24px'}}>
       {STORIES.map(([k,c,t,v],i)=>v?null:<VideoCard key={k} cap={c} title={t} src={VSRC(k)} pos="center" ts={m?24:28} play={m?60:64} label="VIDEO: client testimonial" onOpen={()=>setOpen(i)}/>)}
     </div>
     <figure style={{margin:m?'16px 0':'40px auto',display:'flex',flexDirection:'column',gap:24,alignItems:'center',textAlign:'center',maxWidth:1000}}>

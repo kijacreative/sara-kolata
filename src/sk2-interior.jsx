@@ -53,7 +53,6 @@ function MethodPage({m}){
       <div style={{fontSize:15,fontWeight:300,color:'var(--fg2)',maxWidth:'60em'}}>Karmic Recapitulation is spiritual work. It is not medical or psychological treatment and does not replace it.</div>
     </Sec>
     <CTABand m={m} tone="indigo" title="Begin with a conversation." body="A free one-hour alignment call, by application, to see where you are and which step fits."><Button fullWidth={m} href={R.alignment}>Apply for an alignment call</Button></CTABand>
-    <Footer m={m}/>
   </div>;
 }
 
@@ -81,7 +80,7 @@ function RetreatPage({m}){
   const gap=m?28:96;
   return <div style={{background:'var(--bg)'}}>
     <Header m={m} active="Retreat Center"/>
-    <section data-screen-label="Retreat hero" style={{position:'relative',height:m?640:820,display:'flex',alignItems:'flex-end',color:'var(--fg)'}}>
+    <section data-no-rv data-screen-label="Retreat hero" style={{position:'relative',height:m?640:820,display:'flex',alignItems:'flex-end',color:'var(--fg)'}}>
       <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 70% 80%, rgba(199,154,62,.32), #2E3452 40%, #14182C 85%)'}}></div>
       <img src="assets/residency-valley.jpg" alt="" onError={e=>{e.currentTarget.style.display='none';}} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
       <div style={{position:'absolute',inset:0,background:'rgba(20,24,44,.58)'}}></div>
@@ -97,13 +96,13 @@ function RetreatPage({m}){
     </div></Sec>
     <Sec m={m} tone="indigo" label="A day in the residency">
       <div style={{display:'flex',flexDirection:m?'column':'row',justifyContent:'space-between',alignItems:m?'flex-start':'end',gap:m?16:40}}><H s={m?48:72}>A day in the residency</H><span style={{fontSize:15,fontWeight:300,color:'var(--fg2)'}}>A typical day. Each residency is shaped around you.</span></div>
-      {m?<ol style={{listStyle:'none',margin:0,padding:0,borderLeft:'1px solid var(--hair)'}}>
+      {m?<ol data-stagger style={{listStyle:'none',margin:0,padding:0,borderLeft:'1px solid var(--hair)'}}>
         {DAY.map(([t,d],i)=><li key={t} style={{display:'flex',flexDirection:'column',gap:8,padding:'0 0 28px 24px',position:'relative'}}>
           <div style={{position:'absolute',left:-5,top:10,width:9,height:9,background:i===0||i===5?'var(--inti-gold)':'var(--fg)'}}></div>
           <H as="h3" s={34}>{t}</H><div style={{fontSize:16,fontWeight:300,lineHeight:1.6,color:'var(--fg2)'}}>{d}</div>
         </li>)}
       </ol>:
-      <ol style={{listStyle:'none',margin:0,padding:0,display:'grid',gridTemplateColumns:'repeat(6,minmax(0,1fr))',position:'relative'}}>
+      <ol data-stagger style={{listStyle:'none',margin:0,padding:0,display:'grid',gridTemplateColumns:'repeat(6,minmax(0,1fr))',position:'relative'}}>
         <div style={{position:'absolute',left:0,right:0,top:4,height:1,background:'var(--hair)'}}></div>
         {DAY.map(([t,d],i)=><li key={t} style={{display:'flex',flexDirection:'column',gap:18,paddingRight:24,position:'relative'}}>
           <div style={{width:9,height:9,background:i===0||i===5?'var(--inti-gold)':'var(--fg)'}}></div>
@@ -122,7 +121,7 @@ function RetreatPage({m}){
     </div></Sec>
     <Sec m={m} tone="quarry" id="screening" label="Screening and safety"><div style={{display:'grid',gridTemplateColumns:g2(m,'minmax(0,1fr) minmax(0,1.3fr)'),gap}}>
       <div style={{display:'flex',flexDirection:'column',gap:24}}><H s={m?48:72}>Screening and safety</H><P c="var(--fg)">Every guest completes an application and medical screening before a residency is confirmed. No exceptions.</P></div>
-      <ol style={{listStyle:'none',margin:0,padding:0}}>{[['Application','Your history, what you have tried, and why now.'],['Medical screening',<span>A medical questionnaire reviewed by an independent physician before any ceremony, including medications, cardiac history and mental health.</span>],['Conversation with Sara','Readiness, surrender, capacity. A fit for both sides.'],['Confirmation','Dates, length and preparation agreed.']].map(([t,d],i)=><li key={t} style={{display:'grid',gridTemplateColumns:m?'40px minmax(0,1fr)':'48px minmax(0,1fr) minmax(0,1.3fr)',gap:m?'8px 16px':24,padding:'22px 0',borderTop:'1px solid var(--hair)'}}><Num n={i+1} style={{paddingTop:8}}/><H as="h3" s={30}>{t}</H><div style={{fontSize:17,fontWeight:300,lineHeight:1.6,color:'var(--fg2)',gridColumn:m?'2':undefined}}>{d}</div></li>)}
+      <ol data-stagger style={{listStyle:'none',margin:0,padding:0}}>{[['Application','Your history, what you have tried, and why now.'],['Medical screening',<span>A medical questionnaire reviewed by an independent physician before any ceremony, including medications, cardiac history and mental health.</span>],['Conversation with Sara','Readiness, surrender, capacity. A fit for both sides.'],['Confirmation','Dates, length and preparation agreed.']].map(([t,d],i)=><li key={t} style={{display:'grid',gridTemplateColumns:m?'40px minmax(0,1fr)':'48px minmax(0,1fr) minmax(0,1.3fr)',gap:m?'8px 16px':24,padding:'22px 0',borderTop:'1px solid var(--hair)'}}><Num n={i+1} style={{paddingTop:8}}/><H as="h3" s={30}>{t}</H><div style={{fontSize:17,fontWeight:300,lineHeight:1.6,color:'var(--fg2)',gridColumn:m?'2':undefined}}>{d}</div></li>)}
         <li style={{padding:'22px 0',borderTop:'1px solid var(--hair)',fontSize:17,fontWeight:300,lineHeight:1.6,color:'var(--fg2)'}}>A trained facilitator is on site through every ceremony, with a written emergency protocol and a private clinic 15 minutes away in Urubamba.</li>
       </ol>
     </div></Sec>
@@ -131,7 +130,6 @@ function RetreatPage({m}){
       <div style={{borderBottom:'1px solid var(--hair)'}}>{FAQ.map(([q,a],i)=><details key={i} open={i<3} style={{borderTop:'1px solid var(--hair)',padding:'22px 0'}}><summary style={{cursor:'pointer',listStyle:'none',display:'flex',justifyContent:'space-between',gap:24,fontFamily:'var(--font-heading)',fontSize:22,lineHeight:1.3}}>{q}<span aria-hidden="true" className="faq-mark" style={{fontFamily:'var(--font-body)',fontSize:22,fontWeight:300}}>+</span></summary><P s={m?17:18} style={{paddingTop:12}}>{a}</P></details>)}</div>
     </div></Sec>
     <CTABand m={m} id="apply" title="Every residency begins with an application." body="Sara reads every one herself. If it's a fit, you'll hear from her team."><Button fullWidth={m}>Apply for a residency</Button></CTABand>
-    <Footer m={m}/>
   </div>;
 }
 Object.assign(window,{MethodPage,RetreatPage});

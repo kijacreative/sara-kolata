@@ -31,13 +31,13 @@ function LadderSection({m,cur:init='USD',flush}){
       <H s={m?48:72}>Every step prepares the next.</H>
       <CurrencyToggle cur={cur} set={setCur}/>
     </div>
-    {m?<ol style={{listStyle:'none',margin:0,padding:0}}>
+    {m?<ol data-stagger style={{listStyle:'none',margin:0,padding:0}}>
       {LADDER.map(([t,p,u,d,l,h],i)=>{const top=i===4;return <li key={t} style={{borderTop:'1px solid '+(top?'var(--gold)':'var(--hair)'),background:top?'var(--raised)':'transparent',borderRadius:top?4:0,padding:top?'24px 20px':'24px 0',display:'grid',gridTemplateColumns:'36px 1fr',gap:12}}>
         <Num n={i+1} style={{paddingTop:8}}/>
         <div style={{display:'flex',flexDirection:'column',gap:8}}><H as="h3" s={32}>{t}</H>{price(p,u)}<div style={{fontSize:17,fontWeight:300,lineHeight:1.6,color:'var(--fg2)'}}>{d}</div><div style={{fontSize:16,paddingTop:4}}><TextLink tone="dark" arrow href={h}>{l}</TextLink></div></div>
       </li>;})}
     </ol>:
-    <ol style={{listStyle:'none',margin:0,padding:0,display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:12,alignItems:'end'}}>
+    <ol data-stagger style={{listStyle:'none',margin:0,padding:0,display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:12,alignItems:'end'}}>
       {LADDER.map(([t,p,u,d,l,h],i)=>{const top=i===4;return <li key={t} style={{display:'flex',flexDirection:'column',background:top?'var(--raised)':'transparent',borderRadius:top?4:0}}>
         <div style={{display:'flex',flexDirection:'column',gap:10,padding:top?'28px 24px 24px':'0 12px 24px 0'}}>
           <H as="h3" s={34}>{t}</H>{price(p,u)}
@@ -50,33 +50,43 @@ function LadderSection({m,cur:init='USD',flush}){
   </Sec>;
 }
 
+/* Hero sky: static still underneath, live shader on top. The live sky runs longer than five seconds,
+   so it gets a pause control (WCAG 2.2.2); it also comes to rest on its own after the sunset. */
 function LiveSky({m}){
-  const ref=React.useRef(null);
+  const ref=React.useRef(null),ctl=React.useRef(null);
   const still=window.SK_SKY&&window.SK_SKY[m?'m':'d'];
   const [live,setLive]=React.useState(false);
+  const [paused,setPaused]=React.useState(false);
   React.useEffect(()=>{
-    if(!window.SK_SKY_LIVE||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    const stop=window.SK_SKY_LIVE(ref.current,m?'m':'d');
-    setLive(true);
-    return ()=>{stop();setLive(false);};
+    if(!window.SK_SKY_LIVE||reducedMotion())return;
+    const c=window.SK_SKY_LIVE(ref.current,m?'m':'d',setPaused);
+    ctl.current=c;setPaused(false);setLive(true);
+    return ()=>{c.stop();ctl.current=null;setLive(false);};
   },[m]);
+  const toggle=()=>{const c=ctl.current;if(!c)return;paused?c.play():c.pause();};
   return <>
     {still&&<img src={still} alt="" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>}
     <canvas ref={ref} aria-hidden="true" style={{position:'absolute',inset:0,width:'100%',height:'100%',opacity:live?1:0,transition:'opacity var(--dur-slow) var(--ease-settle)'}}/>
+    {live&&<button type="button" className="sky-toggle" onClick={toggle} aria-label={paused?'Play the sky animation':'Pause the sky animation'} title={paused?'Play the sky':'Pause the sky'}
+      style={{position:'absolute',zIndex:2,right:m?24:64,...(m?{top:96}:{bottom:88}),width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',padding:0,background:'rgba(17,20,42,.35)',border:'1px solid var(--border-on-dark)',borderRadius:2,color:'var(--fg)',cursor:'pointer'}}>
+      {paused?<svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor" aria-hidden="true"><path d="M2 1.5l11 6.5-11 6.5z"/></svg>
+             :<svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor" aria-hidden="true"><rect x="2" y="1.5" width="3" height="13"/><rect x="9" y="1.5" width="3" height="13"/></svg>}
+    </button>}
   </>;
 }
 
 function Hero({m}){
   const wide=useViewport()>=1240;
-  return <section data-screen-label="Hero" style={{position:'relative',height:m?'max(100svh, 720px)':900,display:'flex',alignItems:'flex-end',color:'var(--fg)',overflow:'hidden',background:'radial-gradient(ellipse at 70% 75%, rgba(199,154,62,.45), #1F2440 35%, #11142A 75%)'}}>
+  const enter=useHeroEntrance();
+  return <section data-no-rv data-screen-label="Hero" style={{position:'relative',height:m?'max(100svh, 720px)':900,display:'flex',alignItems:'flex-end',color:'var(--fg)',overflow:'hidden',background:'radial-gradient(ellipse at 70% 75%, rgba(199,154,62,.45), #1F2440 35%, #11142A 75%)'}}>
     <LiveSky m={m}/>
-    <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(17,20,42,.94) 0%, rgba(17,20,42,.72) 33%, rgba(17,20,42,0) 62%)'}}></div>
+    <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(17,20,42,.94) 0%, rgba(17,20,42,.72) 33%, rgba(17,20,42,0) 62%)',pointerEvents:'none'}}></div>
     <Header m={m} over/>
     <div style={{position:'relative',padding:m?'0 24px 56px':'0 64px 88px',display:'flex',flexDirection:'column',gap:m?20:26,maxWidth:1312}}>
-      <Tagline s={m?34:46}/>
-      <H as="h1" s={m?76:150} style={{lineHeight:.98,letterSpacing:'-0.025em'}}><span style={{display:'block',whiteSpace:wide?'nowrap':'normal'}}>You've done the work.</span><span style={{display:'block',whiteSpace:wide?'nowrap':'normal'}}>You're still here.</span></H>
-      <P s={m?18:21} c="var(--fg2)" style={{maxWidth:'30em'}}>There is a reason for that. Karmic Recapitulation works below insight, where the pattern was first written.</P>
-      <div style={{display:'flex',gap:12,paddingTop:6,flexDirection:m?'column':'row'}}><Button fullWidth={m} href={R.method}>Read the method</Button><Button variant="on-dark" fullWidth={m} href={R.alignment}>Apply for an alignment call</Button></div>
+      <div {...enter(0)}><Tagline s={m?34:46}/></div>
+      <div {...enter(1)}><H as="h1" s={m?76:150} style={{lineHeight:.98,letterSpacing:'-0.025em'}}><span style={{display:'block',whiteSpace:wide?'nowrap':'normal'}}>You've done the work.</span><span style={{display:'block',whiteSpace:wide?'nowrap':'normal'}}>You're still here.</span></H></div>
+      <div {...enter(2)}><P s={m?18:21} c="var(--fg2)" style={{maxWidth:'30em'}}>There is a reason for that. Karmic Recapitulation works below insight, where the pattern was first written.</P></div>
+      <div {...enter(3)}><div style={{display:'flex',gap:12,paddingTop:6,flexDirection:m?'column':'row'}}><Button fullWidth={m} href={R.method}>Read the method</Button><Button variant="on-dark" fullWidth={m} href={R.alignment}>Apply for an alignment call</Button></div></div>
     </div>
   </section>;
 }
@@ -87,8 +97,8 @@ function HomePage({m}){
 
     <Sec m={m} label="Recognition" style={{gap:m?28:48}}>
       <P s={m?19:22}>Most of the people who find Sara have already tried everything.</P>
-      <div>{HOME_RECOG.map(([t,d],i)=><div key={i} style={{display:'grid',gridTemplateColumns:m?'1fr':'minmax(0,2.3fr) minmax(0,1fr)',gap:m?14:64,alignItems:'end',padding:m?'28px 0':'48px 0',borderTop:'1px solid var(--hair)',borderBottom:i===2?'1px solid var(--hair)':'none'}}>
-        <h3 style={{margin:0,fontFamily:EU,fontWeight:400,fontSize:m?48:108,lineHeight:1.02,letterSpacing:'-0.01em',textWrap:'balance'}}>{t}</h3>
+      <div data-stagger>{HOME_RECOG.map(([t,d],i)=><div key={i} style={{display:'grid',gridTemplateColumns:m?'1fr':'minmax(0,2.3fr) minmax(0,1fr)',gap:m?14:64,alignItems:'end',padding:m?'28px 0':'48px 0',borderTop:'1px solid var(--hair)',borderBottom:i===2?'1px solid var(--hair)':'none'}}>
+        <h2 style={{margin:0,fontFamily:EU,fontWeight:400,fontSize:m?48:108,lineHeight:1.02,letterSpacing:'-0.02em',textWrap:'balance'}}>{t}</h2>
         <P s={m?17:19} style={{paddingBottom:m?0:14}}>{d}</P>
       </div>)}</div>
     </Sec>
@@ -101,13 +111,13 @@ function HomePage({m}){
       <P s={m?20:26} c="var(--fg)" style={{maxWidth:'30em',lineHeight:1.55}}>It begins with safety. Healing isn't about becoming stronger at carrying pain. It's about becoming safe enough to let it move.</P>
       <VideoCard cap="Sara explains the method" title="What Karmic Recapitulation is, and how it works" ts={m?30:48} play={m?64:104} label="VIDEO: Sara on Karmic Recapitulation" field="var(--indigo-deep)" src="assets/images-9.jpg" pos="center 28%"/>
       <div style={{display:'flex',flexDirection:'column',gap:m?28:44,paddingTop:m?8:24}}>
-        {m?<ol style={{listStyle:'none',margin:0,padding:0}}>
+        {m?<ol data-stagger style={{listStyle:'none',margin:0,padding:0}}>
           {HOME_METHOD.map(([n,d],i)=><li key={n} style={{display:'grid',gridTemplateColumns:'88px 1fr',gap:20,alignItems:'center',padding:'20px 0',borderTop:'1px solid var(--hair)'}}>
             <img src={'illustrations/dark/'+PHASE_IL[i]+'-dark.svg'} alt="" style={{width:88,aspectRatio:'400 / 560',display:'block',borderRadius:4}}/>
             <div style={{display:'flex',flexDirection:'column',gap:4}}><H as="h3" s={40}><span style={{color:'var(--gold)',fontFamily:EU,marginRight:10}}>{i+1}</span>{n}</H><div style={{fontSize:17,fontWeight:300,color:'var(--fg2)'}}>{d}</div></div>
           </li>)}
         </ol>:
-        <ol style={{listStyle:'none',margin:0,padding:0,display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:32}}>
+        <ol data-stagger style={{listStyle:'none',margin:0,padding:0,display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:32}}>
           {HOME_METHOD.map(([n,d],i)=><li key={n} style={{display:'flex',flexDirection:'column',gap:10}}>
             <img src={'illustrations/dark/'+PHASE_IL[i]+'-dark.svg'} alt="" style={{width:'100%',aspectRatio:'400 / 560',display:'block',borderRadius:4,marginBottom:20}}/>
             <div style={{fontFamily:EU,fontSize:120,lineHeight:.85,color:'var(--gold)'}}>{i+1}</div>
@@ -180,7 +190,6 @@ function HomePage({m}){
       </form>
     </div></Sec>
 
-    <Footer m={m}/>
   </div>;
 }
 Object.assign(window,{HomePage,LadderSection});

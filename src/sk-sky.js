@@ -63,19 +63,33 @@ function render(w,h,sx,k,sr){
 var P={d:[.44,1,.085],m:[.07,.42,.06]};
 window.SK_SKY={d:render(2160,1350,P.d[0],P.d[1],P.d[2]),m:render(780,1688,P.m[0],P.m[1],P.m[2])};
 
-/* Live sky: animates the same field slowly on a canvas, and the sun sets once over SET seconds
-   (starting from the still's position), then holds at dusk. Returns a stop() function. */
-var SET=45;
-window.SK_SKY_LIVE=function(c,mode){
-  var p=P[mode]||P.d,s;
+/* Live sky: animates the same field slowly on a canvas. The sun sets once over SET seconds (starting
+   from the still's position), the clouds drift on for REST more seconds, then the sky comes to rest.
+   Time only advances while the canvas is on screen and not paused, so nobody misses the sunset.
+   Returns {stop, pause, play, paused()}; onState(paused) fires whenever it pauses, plays or rests. */
+var SET=45,REST=15;
+window.SK_SKY_LIVE=function(c,mode,onState){
+  var p=P[mode]||P.d,s,noop={stop:function(){},pause:function(){},play:function(){},paused:function(){return true;}};
   try{s=setup(c,p[0],p[1],p[2],false);}catch(e){s=null;}
-  if(!s)return function(){};
-  var raf=0,t0=performance.now(),visible=true;
+  if(!s)return noop;
+  var raf=0,last=0,el=0,visible=true,paused=false;
   function size(){var dpr=Math.min(window.devicePixelRatio||1,1.5),w=Math.round(c.clientWidth*dpr),h=Math.round(c.clientHeight*dpr);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}}
-  function loop(now){if(visible){size();var el=(now-t0)/1000,x=Math.min(el/SET,1);s.draw(12.0+el,.5-.5*Math.cos(Math.PI*x));}raf=requestAnimationFrame(loop);}
-  var io=('IntersectionObserver' in window)?new IntersectionObserver(function(e){visible=e[0].isIntersecting;}):null;
+  function frame(){size();var x=Math.min(el/SET,1);s.draw(12.0+el,.5-.5*Math.cos(Math.PI*x));}
+  function loop(now){
+    if(visible){el+=Math.min(now-(last||now),100)/1000;frame();}
+    last=now;
+    if(el>=SET+REST){raf=0;paused=true;if(onState)onState(true);return;}
+    raf=requestAnimationFrame(loop);
+  }
+  function play(){if(!paused)return;paused=false;last=0;if(onState)onState(false);if(!raf)raf=requestAnimationFrame(loop);}
+  function pause(){if(paused)return;paused=true;if(raf)cancelAnimationFrame(raf);raf=0;if(onState)onState(true);}
+  var io=('IntersectionObserver' in window)?new IntersectionObserver(function(e){visible=e[0].isIntersecting;if(visible)last=0;}):null;
   if(io)io.observe(c);
+  /* resizing clears the canvas, so redraw the held frame while paused */
+  function onResize(){if(paused)frame();}
+  window.addEventListener('resize',onResize,{passive:true});
   raf=requestAnimationFrame(loop);
-  return function(){cancelAnimationFrame(raf);if(io)io.disconnect();var ext=s.gl.getExtension('WEBGL_lose_context');if(ext)ext.loseContext();};
+  return {pause:pause,play:function(){if(el>=SET+REST)el=SET;play();},paused:function(){return paused;},
+    stop:function(){if(raf)cancelAnimationFrame(raf);if(io)io.disconnect();window.removeEventListener('resize',onResize);var ext=s.gl.getExtension('WEBGL_lose_context');if(ext)ext.loseContext();}};
 };
 })();

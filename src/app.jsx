@@ -14,8 +14,16 @@ function parse(){
 function App(){
   const [route,setRoute]=React.useState(parse);
   const m=useViewport()<900;
+  const cur=React.useRef(route);cur.current=route;
+  const mainRef=React.useRef(null);
   React.useEffect(()=>{
-    const f=()=>setRoute(parse());
+    const f=()=>{
+      const next=parse();
+      /* crossfade between pages only; jumps within a page and reduced motion change instantly */
+      if(next.page!==cur.current.page&&document.startViewTransition&&!reducedMotion())
+        document.startViewTransition(()=>ReactDOM.flushSync(()=>setRoute(next)));
+      else setRoute(next);
+    };
     window.addEventListener('hashchange',f);
     return()=>window.removeEventListener('hashchange',f);
   },[]);
@@ -25,7 +33,12 @@ function App(){
     const el=route.section&&document.getElementById(route.section);
     if(el)el.scrollIntoView({block:'start',behavior:'instant'});else window.scrollTo({top:0,behavior:'instant'});
   },[route.page,route.section]);
-  return <C m={m}/>;
+  React.useEffect(()=>revealSections(mainRef.current),[route.page,m]);
+  return <>
+    <SkipLink/>
+    <main id="main" ref={mainRef}><C m={m}/></main>
+    <Footer m={m}/>
+  </>;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);

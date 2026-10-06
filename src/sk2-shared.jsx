@@ -26,18 +26,18 @@ function H({s=64,as='h2',c,i,children,style}){const T=as;return <T style={{margi
 function P({s=19,c='var(--fg2)',children,style}){return <p style={{margin:0,fontSize:s,fontWeight:300,lineHeight:1.7,maxWidth:'34em',color:c,textWrap:'pretty',...style}}>{children}</p>;}
 function Num({n,style}){return <div style={{fontSize:13,fontWeight:500,letterSpacing:'0.14em',color:'var(--gold)',...style}}>{String(n).padStart(2,'0')}</div>;}
 function Tagline({s=46,style}){return <div style={{fontFamily:'var(--font-accent)',fontSize:s,lineHeight:1,color:'var(--gold)',...style}}>Go to the root</div>;}
-const TONES={quarry:{bg:'var(--bg)',fg:'var(--fg)'},indigo:{bg:'var(--raised)',fg:'var(--fg)'},tint:{bg:'var(--raised)',fg:'var(--fg)'},stage:{bg:'var(--bg)',fg:'var(--fg)'},sage:{bg:'var(--apu-sage)',fg:'var(--obsidian)'}};
-function Sec({tone='quarry',m,children,style,label,id}){const t=TONES[tone];return <section id={id} data-screen-label={label} style={{position:'relative',background:t.bg,color:t.fg,padding:m?'72px 24px':'120px 64px',display:'flex',flexDirection:'column',gap:m?36:56,...style}}>{children}</section>;}
+const TONES={quarry:{bg:'var(--bg)',fg:'var(--fg)'},indigo:{bg:'var(--raised)',fg:'var(--fg)'},tint:{bg:'var(--raised)',fg:'var(--fg)'},stage:{bg:'var(--bg)',fg:'var(--fg)'},sage:{bg:'var(--sage-band)',fg:'var(--obsidian)'}};
+function Sec({tone='quarry',m,children,style,label,id}){const t=TONES[tone];return <section id={id} className={tone==='sage'?'sage-band':undefined} data-screen-label={label} style={{position:'relative',background:t.bg,color:t.fg,padding:m?'72px 24px':'120px 64px',display:'flex',flexDirection:'column',gap:m?36:56,...style}}>{children}</section>;}
 function Rule({style}){return <div style={{height:1,background:'var(--hair)',...style}}></div>;}
 function Arch({s=40,c='var(--gold)'}){return <svg width={s} height={s} viewBox="0 0 120 120" fill="none" aria-hidden="true"><path d="M22 108 V56 A38 38 0 0 1 98 56 V108" stroke={c} strokeWidth="6"/><circle cx="60" cy="56" r="12" fill={c}/></svg>;}
 
-function PlayBtn({s=72}){return <div aria-hidden="true" style={{width:s,height:s,borderRadius:'50%',border:'1px solid var(--fg)',background:'rgba(17,20,42,.55)',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width={s*.26} height={s*.3} viewBox="0 0 22 26" fill="none" style={{marginLeft:s*.05}}><path d="M2 2l18 11L2 24z" fill="var(--fg)"/></svg></div>;}
+function PlayBtn({s=72}){return <div aria-hidden="true" className="play" style={{width:s,height:s,borderRadius:'50%',border:'1px solid var(--fg)',background:'rgba(17,20,42,.55)',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width={s*.26} height={s*.3} viewBox="0 0 22 26" fill="none" style={{marginLeft:s*.05}}><path d="M2 2l18 11L2 24z" fill="var(--fg)"/></svg></div>;}
 function Poster({label='VIDEO: client testimonial',fill,play=72,field='var(--raised)',src,pos='center 30%',ratio='16 / 9'}){
   const [failed,setFailed]=React.useState(false);
   const img=src&&!failed;
   return <div style={{position:'relative',flex:fill?1:'none',minHeight:0,border:'1px solid var(--hair)',borderRadius:4,overflow:'hidden'}}>
     <ImageFrame ratio={fill?'auto':ratio} field={field} radius={0} style={fill?{height:'100%',minHeight:200}:undefined}/>
-    {img&&<img src={src} alt="" onError={()=>setFailed(true)} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:pos}}/>}
+    {img&&<img className="poster-img" src={src} alt="" onError={()=>setFailed(true)} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:pos}}/>}
     {img&&<div style={{position:'absolute',inset:0,background:'rgba(17,20,42,.28)'}}></div>}
     <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}><PlayBtn s={play}/></div>
     {!img&&<span className="ph d" style={{position:'absolute',left:14,bottom:14,maxWidth:'calc(100% - 28px)'}}>[{label}]</span>}
@@ -45,7 +45,7 @@ function Poster({label='VIDEO: client testimonial',fill,play=72,field='var(--rai
 }
 function VCap({cap,title,ts=28}){return <div style={{display:'flex',flexDirection:'column',gap:10}}>
   <div style={{fontSize:14,fontWeight:500,letterSpacing:'0.04em',color:'var(--gold)'}}>{cap}</div>
-  <div style={{fontFamily:EU,fontSize:ts,lineHeight:1.12,letterSpacing:'-0.01em',color:'var(--fg)',textWrap:'balance'}}>{title}</div>
+  <div style={{fontFamily:EU,fontSize:ts,lineHeight:1.12,letterSpacing:ts>=32?'-0.02em':'-0.01em',color:'var(--fg)',textWrap:'balance'}}>{title}</div>
 </div>;}
 function VideoCard({cap,title,ts=28,wide,fill,play,label,field,src,pos,ratio,onOpen,style}){
   const btn={all:'unset',cursor:'pointer',display:wide?'grid':'flex',flexDirection:'column',gridTemplateColumns:wide?'minmax(0,1.8fr) minmax(0,1fr)':undefined,gap:wide?28:18,alignItems:wide?'end':undefined,boxSizing:'border-box',...style};
@@ -64,13 +64,13 @@ function MobileMenu({onClose,active}){
     document.addEventListener('keydown',k);document.body.style.overflow='hidden';
     return()=>{document.removeEventListener('keydown',k);document.body.style.overflow='';};
   },[]);
-  return <div role="dialog" aria-modal="true" aria-label="Site menu" style={{position:'fixed',inset:0,zIndex:20,background:'var(--bg)',color:'var(--fg)',display:'flex',flexDirection:'column',padding:'14px 24px 32px',overflowY:'auto'}}>
+  return <div role="dialog" aria-modal="true" aria-label="Site menu" className="menu-in" style={{position:'fixed',inset:0,zIndex:20,background:'var(--bg)',color:'var(--fg)',display:'flex',flexDirection:'column',padding:'14px 24px 32px',overflowY:'auto'}}>
     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16}}>
       <a href={R.home} onClick={onClose} aria-label="Sara Kolata, home" style={{display:'flex'}}><Lockup layout="horizontal" size="sm" tone="dark"/></a>
       <button onClick={onClose} aria-label="Close menu" style={{height:48,padding:'0 14px',display:'flex',alignItems:'center',gap:10,background:'transparent',border:'1px solid var(--fg)',borderRadius:2,fontFamily:'var(--font-body)',fontSize:15,fontWeight:500,color:'var(--fg)',cursor:'pointer'}}>Close<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.4"/></svg></button>
     </div>
     <nav style={{display:'flex',flexDirection:'column',marginTop:40}}>
-      {NAV.map(([n,h])=><a key={n} href={h} onClick={onClose} aria-current={active===n?'page':undefined} style={{fontFamily:'var(--font-heading)',fontSize:34,lineHeight:1.2,padding:'14px 0',borderTop:'1px solid var(--hair)',color:active===n?'var(--gold)':'var(--fg)',textDecoration:'none'}}>{n}</a>)}
+      {NAV.map(([n,h],i)=><a key={n} href={h} onClick={onClose} className="menu-in" aria-current={active===n?'page':undefined} style={{fontFamily:'var(--font-heading)',fontSize:34,lineHeight:1.2,padding:'14px 0',borderTop:'1px solid var(--hair)',color:active===n?'var(--gold)':'var(--fg)',textDecoration:'none',animationDelay:(60+i*30)+'ms'}}>{n}</a>)}
     </nav>
     <div style={{display:'flex',flexDirection:'column',gap:20,marginTop:32}}><Lang/><Button fullWidth href={R.apply} onClick={onClose}>Apply for a residency</Button></div>
   </div>;
@@ -87,7 +87,7 @@ function Header({m,active,over}){
       <button aria-label="Open menu" aria-expanded={open} onClick={()=>setOpen(true)} style={{height:48,padding:'0 14px',display:'flex',alignItems:'center',gap:10,background:'transparent',border:'1px solid var(--fg)',borderRadius:2,fontFamily:'var(--font-body)',fontSize:15,fontWeight:500,color:'var(--fg)',cursor:'pointer'}}><svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M0 1h18M0 9h18" stroke="currentColor" strokeWidth="1.4"/></svg>Menu</button>
     </div>:
     <div style={{display:'flex',alignItems:'center',gap:24}}>
-      <nav style={{display:'flex',gap:22}}>{NAV.map(([n,h])=><a key={n} href={h} aria-current={active===n?'page':undefined} style={{fontSize:15,fontWeight:500,color:'var(--fg)',textDecoration:active===n?'underline':'none',textUnderlineOffset:7,textDecorationThickness:1,whiteSpace:'nowrap'}}>{n}</a>)}</nav>
+      <nav style={{display:'flex',gap:22}}>{NAV.map(([n,h])=><a key={n} href={h} className="navl" aria-current={active===n?'page':undefined} style={{fontSize:15,fontWeight:500,color:'var(--fg)',whiteSpace:'nowrap'}}>{n}</a>)}</nav>
       <span style={{paddingLeft:22,borderLeft:'1px solid var(--hair)'}}><Lang/></span>
       <Button href={R.apply}>Apply for a residency</Button>
     </div>}
@@ -143,7 +143,7 @@ const PRESS=[
   ['Deep Work Radio','var(--font-heading)',19,400,'0.02em','italic']
 ];
 function PressGrid({m}){
-  return <div style={{display:'grid',gridTemplateColumns:m?'1fr 1fr':'repeat(6,minmax(0,1fr))',borderTop:'1px solid var(--hair)',borderLeft:'1px solid var(--hair)'}}>
+  return <div data-stagger style={{display:'grid',gridTemplateColumns:m?'1fr 1fr':'repeat(6,minmax(0,1fr))',borderTop:'1px solid var(--hair)',borderLeft:'1px solid var(--hair)'}}>
     {PRESS.map(([n,f,s,w,ls,st])=><div key={n} style={{height:m?88:112,padding:'0 12px',display:'flex',alignItems:'center',justifyContent:'center',textAlign:'center',borderRight:'1px solid var(--hair)',borderBottom:'1px solid var(--hair)',color:'var(--fg2)',fontFamily:f,fontSize:m?Math.round(s*.85):s,fontWeight:w,letterSpacing:ls,fontStyle:st,lineHeight:1.1}}>{n}</div>)}
   </div>;
 }
